@@ -6,6 +6,7 @@
     "start": "nodemon ./bin/www",
     "dev": "nodemon ./bin/www",
     "build": "tsc --watch",
+    "compile": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
