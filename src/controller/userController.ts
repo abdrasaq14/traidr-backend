@@ -3,7 +3,7 @@ import { hashPassword } from '../utils/password';
 import { googleSignIn } from '../utils/googleAuth';
 import User from "../model/user";
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken"
 import speakeasy from 'speakeasy';
 import { transporter } from '../utils/emailSender';
 import Payment from '../model/payment';
