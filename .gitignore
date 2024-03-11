@@ -9,6 +9,8 @@ lerna-debug.log*
 .env
 package-lock.json
 yarn.lock
+/public/uploads/*
+!/public/uploads/.gitkeep
 
 node_modules
 dist
