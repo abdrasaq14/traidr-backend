@@ -6,8 +6,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 dotenv.config();
 
-const BACKEND_URL = process.env.BACKEND_URL;
-
+const BACKEND_URL = process.env.PROD_BACKEND_URL;
+console.log("BACKEND_URL", BACKEND_URL)
 export const addNewProduct = async (req: Request, res: Response): Promise<void> => {
  try {
     console.log("req.body", req.body)
