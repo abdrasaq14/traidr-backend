@@ -4,13 +4,14 @@ import ShopModel from '../model/shop';
 import dotenv from 'dotenv';
 import path from 'node:path';
 import fs from 'node:fs';
+import User from '../model/user';
+import { Op } from 'sequelize';
 dotenv.config();
 
 const BACKEND_URL = process.env.BACKEND_URL;
-console.log("BACKEND_URL", BACKEND_URL)
+
 export const addNewProduct = async (req: Request, res: Response): Promise<void> => {
  try {
-    console.log("req.body", req.body)
     const { shopId } = req.params;
     if (!(req.files as unknown as { [fieldname: string]: Express.Multer.File[]; }).productPhoto) {
       res.json({ noPhoto: 'Photos are required' });
@@ -33,8 +34,6 @@ export const addNewProduct = async (req: Request, res: Response): Promise<void> 
         console.log("photoPath", photoPath)
         photoPaths.push(photoPath);
       });
-
-      console.log("photoPaths", photoPaths)
 
       let videoPath = null;
       if (video) {
@@ -77,40 +76,122 @@ export const getProductsByShopId = async (req: Request, res: Response): Promise<
   }
 }
 
-export const getAllProducts = async (req: Request, res: Response): Promise<void> => { 
-  try {
 
-    const products = await Product.findAll();
-    console.log("products")
-    res.json({ products });
-  } catch (error) {
-    console.log('Error getting products:', error)
-    res.json({ error: 'Error getting products' });
-  }
-}
 
 export const getProductById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const productId = (req.params.productId);
-
-      // Mock product data
-      // const mockProducts = [
-      //   { id: 1, name: 'Product 1', price: 10.99 },
-      //   { id: 2, name: 'Product 2', price: 20.99 },
-      //   { id: 3, name: 'Product 3', price: 30.99 },
-      // ];
-    // const product = mockProducts.find(p => p.id === productId);
-
-    const product = await Product.findByPk(productId);
-
-    if(!product) {
-      res.json({ error: 'Product not found' });
-      return;
-    }
-    res.json({product});
-
+    const { productId } = req.params;
+    const productDetails = await Product.findOne({ where: { productId } });
+    const shopDetails = await ShopModel.findOne({ where: { shopId: productDetails?.dataValues.shopId } });
+    const shopOwner = await User.findOne({ where: { userId: shopDetails?.dataValues.shopOwner } });
+    const similarProducts = await Product.findAll({ where: { productCategory: productDetails?.dataValues.productCategory } });
+    const product = { ...productDetails?.dataValues, shopName: shopDetails?.dataValues.shopName, shopOwner: shopOwner?.dataValues.name, similarProducts: similarProducts, shopOwnerEmail: shopOwner?.dataValues.email};
+    
+    res.json({ product });
   } catch (error) {
-    console.error('Error getting product by ID:', error);
+    console.log('Error getting products:', error)
     res.json({ error: 'Error getting products' });
+  }}
+
+  export const getAllProducts = async (req: Request, res: Response): Promise<void> => { 
+    try {
+  
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 9;
+      const offset = (page - 1) * pageSize;
+      
+  
+      const { minPrice, maxPrice, price, search, category, sort, color } = req.query;
+   
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const whereCondition: any = {};
+  
+      if (price){
+        whereCondition.productPrice = price
+  
+        } else if(minPrice && maxPrice){
+    whereCondition.productPrice = {
+      [Op.between]: [minPrice,maxPrice]
+  
+    };
+  } else if (maxPrice ) {
+        whereCondition.productPrice = {
+          [Op.lte]: +maxPrice
+  
+        } ;
+      } else if (minPrice ) {
+        whereCondition.productPrice = {
+          [Op.gte]: +minPrice
+        };
+      }
+    
+  if(search){
+    whereCondition.productTitle = {
+      [Op.iLike] : `%${search}%`
+    } 
   }
+  
+    if (category){
+      whereCondition.productCategory = {
+      [Op.iLike] : `%${category}`
+      }
+    }
+  
+  
+    let sortOrder: [string, string] = ["productPrice", "ASC"];
+    
+    if (sort === "high"){
+      sortOrder = [ "productPrice", "DESC" ]
+    }
+  
+    else if ( sort === "low"){
+     sortOrder = ["productPrice", "ASC"] 
+    }
+  
+  if (sort === "most-recent"){
+    sortOrder = [ "updatedAt", "DESC"]
+  }
+  
+  if(color){
+    whereCondition.productTitle = {
+        [Op.iLike] : `%${color}%`
+      };
+      // whereCondition.productDescription = {
+      //   [Op.iLike] : `%${color}%`
+      // }
+    }
+    
+  
+      const products = await Product.findAll({
+        where: whereCondition,
+        order: [sortOrder],
+        offset,
+        limit: pageSize, 
+      });
+  
+
+  
+      res.json({products});
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+  
+
+export const getProductCount = async(req:Request, res:Response):Promise<void>=>{
+  try {
+    const totalProductCount = await Product.count()
+    const productCount = {
+      totalProductCount: totalProductCount
+    }
+    res.json({productCount})
+  } catch (error) {
+    res.json({error:`${error}`})
+  }
+  
+  
 }
+  
+  
+  

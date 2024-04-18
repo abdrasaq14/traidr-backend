@@ -1,5 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
-import  sequelize  from '../database/database.config'; 
+import sequelize from '../database/database.config';
 
 class PaymentDetails extends Model {
   public paymentMethod!: string;

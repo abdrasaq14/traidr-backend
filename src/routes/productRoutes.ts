@@ -1,9 +1,10 @@
 import express from 'express';
-import { addNewProduct, getProductsByShopId, getAllProducts, getProductById } from '../controller/productController';
+import { addNewProduct, getProductsByShopId, getAllProducts, getProductById, getProductCount } from '../controller/productController';
 import multer from 'multer';
 import path from 'node:path';
 import fs from 'node:fs';
 import { getAllProductsCategory } from "../controller/categories";
+import { getAllProductsColors } from '../controller/colors';
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ const storage = multer.diskStorage({
         const dir = path.resolve(__dirname, '..', '..', 'public','uploads')
         try {
             fs.mkdirSync(dir, { recursive: true })
-            console.log("dir", dir)
+            
         } catch (error) {
             console.log("error", error)
         }
@@ -29,10 +30,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.get("/get-products-categories", getAllProductsCategory);
+router.get("/get-products-colors", getAllProductsColors);
 router.post('/add-product/:shopId', upload.fields([{ name: 'productPhoto', maxCount: 3 }, { name: 'productVideo', maxCount: 1 }]), addNewProduct);
 router.get('/get-products/:shopId', getProductsByShopId); 
 router.get('/get-all-products', getAllProducts); 
-router.get('/get-product/:productId', getProductById);
+router.get('/get-single-product/:productId', getProductById);
+router.get('/get-product-count', getProductCount);
 
 
 export default router;

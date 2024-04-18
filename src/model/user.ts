@@ -16,6 +16,12 @@ class User extends Model {
   public resetPasswordToken!: string | null;
   public isAdmin!: boolean;
   public isSeller!: boolean;
+  public gender!: string|null;
+  public age!: number|null;
+  public dateOfBirth!: number|null;
+  public address!: string|null;
+  public shopName!: string|null;
+  public profilePic!: string|null;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static associate(models: any): void {
@@ -40,6 +46,10 @@ User.init(
       allowNull: true,
     },
     hearAboutUs: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    dateOfBirth: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -68,7 +78,10 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    
+    phoneNumber:{
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     resetPasswordExpiration: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -86,6 +99,26 @@ User.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    gender:{
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    age:{
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    address:{
+      type: DataTypes.STRING,
+      allowNull:true,
+    },
+    shopName:{
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    profilePic: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

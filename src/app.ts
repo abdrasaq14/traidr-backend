@@ -2,7 +2,6 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import DB from './database/database.config';
 import dotenv from 'dotenv';
 import otpRoute from './routes/otpRoute'
 import cors from 'cors'
@@ -12,7 +11,15 @@ import checkAndVerifyUserToken from './routes/verifyToken'
 import shopRouter from './routes/shopRoutes'
 import notificationRouter from './routes/notificationRoutes'
 import productRouter from './routes/productRoutes'
-
+import reviewRouter from './routes/review'
+import completedordersRouter from './routes/orderRoute'
+import adminRouter from './routes/adminRoutes'
+import cartRouter from './routes/cartRoutes'
+import orderRouter from './routes/orderRoute'
+import saleRouter from './routes/saleRoutes'
+import deliveryRouter from './routes/deliveryRoutes'
+import wishListRouter from './routes/wishListRoutes'
+import DB from './database/database.config';
 dotenv.config();
 
 DB.sync()
@@ -23,7 +30,7 @@ DB.sync()
    throw error;
 })
 const FRONTEND_URL = process.env.FRONTEND_URL
-const app = express();
+const app = express(); 
 
 app.use(cors({
    origin: FRONTEND_URL,
@@ -43,6 +50,14 @@ app.use('/users-otp', otpRoute);
 app.use('/shop', shopRouter);
 app.use('/notification', notificationRouter )
 app.use('/products', productRouter);
+app.use('/reviews', reviewRouter);
+app.use('/completedorders', completedordersRouter);
+app.use('/admin', adminRouter)
+app.use('/cart', cartRouter)
+app.use('/order', orderRouter)
+app.use('/sale', saleRouter)
+app.use('/delivery', deliveryRouter)
+app.use('/wishlist', wishListRouter)
 
 
 
